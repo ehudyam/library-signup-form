@@ -1,0 +1,71 @@
+
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>טופס הרשמה לספרייה</title>
+  <style>
+    body { font-family: Arial, sans-serif; direction: rtl; text-align: right; }
+    canvas { border: 1px solid #000; }
+    input, button { margin: 5px; }
+  </style>
+</head>
+<body>
+  <h2>טופס הרשמה לספרייה</h2>
+  <form id="registrationForm">
+    <label>שם פרטי:</label><br>
+    <input type="text" id="firstName" required><br>
+    <label>שם משפחה:</label><br>
+    <input type="text" id="lastName" required><br>
+    <label>מספר תעודת זהות:</label><br>
+    <input type="text" id="idNumber" required><br>
+    <label>טלפון:</label><br>
+    <input type="tel" id="phone" required><br>
+    <label>חתימה:</label><br>
+    <canvas id="signatureCanvas" width="300" height="150"></canvas><br>
+    <button type="button" id="clearButton">נקה חתימה</button><br>
+    <button type="submit">שלח</button>
+  </form>
+
+  <script>
+    const canvas = document.getElementById('signatureCanvas');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+
+    canvas.addEventListener('mousedown', () => drawing = true);
+    canvas.addEventListener('mouseup', () => drawing = false);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('touchstart', () => drawing = true);
+    canvas.addEventListener('touchend', () => drawing = false);
+    canvas.addEventListener('touchmove', draw);
+
+    function draw(e) {
+      if (!drawing) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX ? e.clientX - rect.left : e.touches[0].clientX - rect.left;
+      const y = e.clientY ? e.clientY - rect.top : e.touches[0].clientY - rect.top;
+      ctx.lineTo(x, y);
+      ctx.stroke();
+    }
+
+    document.getElementById('clearButton').addEventListener('click', () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    });
+
+    document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = {
+        firstName: document.getElementById('firstName').value,
+        lastName: document.getElementById('lastName').value,
+        idNumber: document.getElementById('idNumber').value,
+        phone: document.getElementById('phone').value,
+        signature: canvas.toDataURL()
+      };
+
+      console.log(data); // להדפסה בלבד - כאן צריך להוסיף שליחת נתונים
+      alert('הטופס נשלח בהצלחה!');
+    });
+  </script>
+</body>
+</html>
