@@ -1,0 +1,145 @@
+
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>טופס הרשמה לספרייה</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      direction: rtl;
+      text-align: right;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    canvas {
+      border: 1px solid #000;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 3 / 1; /* יחס גובה-רוחב קבוע */
+      touch-action: none; /* מניעת גלילה בזמן ציור */
+    }
+    input, button, textarea {
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/signature_pad"></script>
+</head>
+<body>
+  <h2>טופס הרשמה לספרייה</h2>
+
+  <h3>תנאי השימוש בספרייה</h3>
+  <p>
+    1. הספרים מושאלים למשך 30 יום.<br>
+    2. ניתן להאריך את תקופת ההשאלה באמצעות פנייה בדוא״ל או דרך האתר.<br>
+    3. ההארכה מותנית באישור הצוות, בהתאם לביקוש הספר.<br>
+    4. הנני מתחייב/ת לשמור על שלמות הספר/ים ולהחזירו/רם במועד שנקבע או לכשאדרש ע״י צוות הספריה.<br>
+    5. במקרה של אובדן או השחתה של ספר - אביא ספר זהה חדש במקומו.<br>
+    6. אני מתחייב/ת לעדכן את צוות הספריה על כל שינוי בכתובתי (מגורים ודוא״ל) או במספרי הטלפון שלי.<br>
+    7. ידוע לי כי חתימתי מהווה התחייבות כי קראתי את האמור ואני מודע/ת לחוקי הספריה ותנאי ההשאלה לעיל.<br>
+    8. אני נותן/ת את רשותי לקבל הודעות ותזכורות מהספריה באמצעות כתובת הדוא״ל שלי.<br>
+  </p>
+
+  <form id="registrationForm">
+    <label>שם פרטי:</label>
+    <input type="text" id="firstName" required>
+
+    <label>שם משפחה:</label>
+    <input type="text" id="lastName" required>
+
+    <label>תאריך:</label>
+    <input type="date" id="date" required>
+
+    <label>תעודת זהות:</label>
+    <input type="text" id="idNumber" required>
+
+    <label>טלפון נייד:</label>
+    <input type="tel" id="mobilePhone" required>
+
+    <label>טלפון קווי (אם יש):</label>
+    <input type="tel" id="homePhone">
+
+    <label>כתובת דוא"ל:</label>
+    <input type="email" id="email" required>
+
+    <label>כתובת מגורים:</label>
+    <input type="text" id="address" required>
+
+    <label>מספר נפשות בבית:</label>
+    <input type="number" id="householdSize" required>
+
+    <label>חתימה:</label>
+    <canvas id="signatureCanvas"></canvas>
+    <button type="button" id="clearButton">נקה חתימה</button>
+
+    <button type="submit">שלח</button>
+  </form>
+
+  <script>
+    const canvas = document.getElementById('signatureCanvas');
+    const signaturePad = new SignaturePad(canvas, {
+      backgroundColor: 'rgba(255, 255, 255, 0)', // רקע שקוף
+      penColor: 'black' // צבע עט שחור
+    });
+
+    // התאמת רזולוציה של הקנבס לגודל המסך ולמסכים ברזולוציה גבוהה
+    function resizeCanvas() {
+      const ratio = Math.max(window.devicePixelRatio || 1, 1);
+      canvas.width = canvas.offsetWidth * ratio;
+      canvas.height = canvas.offsetHeight * ratio;
+      canvas.getContext('2d').scale(ratio, ratio);
+      signaturePad.clear();
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas(); // התאמה אוטומטית בטעינה
+
+    // מניעת תפריטים קופצים בגלילה
+    canvas.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
+    canvas.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+
+    // ניקוי חתימה
+    document.getElementById('clearButton').addEventListener('click', () => {
+      signaturePad.clear();
+    });
+
+    // שליחת הטופס
+    document.getElementById('registrationForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (signaturePad.isEmpty()) {
+        alert("יש להוסיף חתימה לפני השליחה.");
+        return;
+      }
+      const data = {
+        firstName: document.getElementById('firstName').value,
+        lastName: document.getElementById('lastName').value,
+        date: document.getElementById('date').value,
+        idNumber: document.getElementById('idNumber').value,
+        mobilePhone: document.getElementById('mobilePhone').value,
+        homePhone: document.getElementById('homePhone').value || 'לא סופק',
+        email: document.getElementById('email').value,
+        address: document.getElementById('address').value,
+        householdSize: document.getElementById('householdSize').value,
+        signature: signaturePad.toDataURL()
+      };
+
+      console.log(data);
+      alert('הטופס נשלח בהצלחה!');
+    });
+  </script>
+</body>
+</html>
